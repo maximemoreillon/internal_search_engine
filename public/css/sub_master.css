@@ -1,0 +1,73 @@
+.header a{
+  text-decoration: none;
+  color: black;
+}
+
+main, .main {
+  text-align: center;
+}
+
+.label_container {
+  font-weight: bold;
+  text-align: left;
+}
+
+.record_container {
+  border: 2px solid grey;
+  border-radius: 4px;
+  padding: 5px;
+  margin: 10px 0;
+}
+
+
+.results_container{
+  margin-top: 25px;
+}
+
+
+
+
+.search_bar_form input{
+  height: 50px;
+  border: 1px solid grey;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.search_bar_form input[type="text"]{
+  width: 50%;
+}
+
+.search_bar_form input[type="submit"]{
+  width: 10%;
+}
+
+.highlighted {
+  background-color: yellow;
+}
+
+.properties_container {
+  margin: 10px;
+}
+
+.properties_container table {
+  width: 100%;
+}
+
+.properties_container td {
+  border-bottom: 1px solid #ddd;
+}
+
+.properties_container td:first-child {
+  width: 50%;
+}
+
+.filters_container {
+  margin: 25px;
+  display: flex;
+  justify-content: center;
+}
+
+.filters_container > div {
+  margin: 0 15px;
+}

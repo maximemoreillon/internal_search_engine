@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <% include partials/head %>
+
+    <script src="js/vue.min.js" charset="utf-8"></script>
+
+  </head>
+  <body>
+
+    <div class="wrapper">
+      <div class="header">
+        <% include partials/header %>
+      </div>
+      <div class="main" id="app">
+
+        <!-- The search bar -->
+        <% include partials/search_bar %>
+
+        <!-- Filters -->
+        <% include partials/filters %>
+
+
+        <div
+          class="record_container"
+          v-for="record in records"
+          v-if="filters.includes(record._fields[0].labels[0])"
+          v-bind:class="record._fields[0].labels[0]"
+        >
+          <!-- Describes the type of node -->
+          <div class="label_container">
+            {{record._fields[0].labels[0]}}
+          </div>
+
+          <!-- Container for table of properties -->
+          <div class="properties_container">
+            <table>
+              <tr v-for="property, key in record._fields[0].properties">
+                <td>{{key}}</td>
+                <td>
+                  <span v-bind:class="{highlighted: property.toLowerCase().indexOf(query.toLowerCase()) != -1}">{{property}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Button to show relationships -->
+          <form class="" action="show_relationships" method="get">
+            <input type="hidden" name="id" v-bind:value="record._fields[0].identity.low">
+            <input type="submit" value="Show relationships">
+          </form>
+
+        </div>
+
+      </div>
+      <div class="footer">
+        <% include partials/footer %>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+    var records = JSON.parse('<%- JSON.stringify(records) %>')
+    var query = JSON.parse('<%- JSON.stringify(query) %>')
+    </script>
+
+    <script src="js/search_result.js" charset="utf-8"></script>
+
+
+
+
+  </body>
+</html>

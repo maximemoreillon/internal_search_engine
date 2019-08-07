@@ -1,0 +1,7 @@
+<div class="filters_container">
+  <label>Filters:</label>
+  <div v-for="type in record_types">
+    <label>{{type}}s</label>
+    <input type="checkbox" v-bind:value="type" v-model="filters">
+  </div>
+</div>

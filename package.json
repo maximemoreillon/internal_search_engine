@@ -1,0 +1,16 @@
+{
+  "name": "jtekt_db_search_engine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jtekt_db_search_engine.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.6.2",
+    "express": "^4.17.1",
+    "neo4j-driver": "^1.7.5"
+  }
+}
