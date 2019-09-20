@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
 const path = require('path');
+const cors = require('cors')
 
 
 var app_port = 8086;
@@ -16,7 +17,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(cors({
+  origin: [
+    'http://172.16.98.151:8083',
+    'http://172.16.98.151',
+    'http://mike.jtekt',
+    'http://mike.jtekt:8083',
+  ],
+  credentials: true,
+}));
 
 // Neo4J config
 const neo4j_config = {
@@ -26,71 +35,76 @@ const neo4j_config = {
 }
 
 
+app.post('/search', function(req, res) {
 
+  if('query' in req.body){
 
-
-app.get('/', function(req, res) {
-  res.render('index');
-});
-
-app.get('/search', function(req, res) {
-
-  if(req.query.query){
     // Neo4J init
     const driver = neo4j.driver(neo4j_config.uri, neo4j.auth.basic(neo4j_config.username, neo4j_config.password));
     const session = driver.session();
 
     var statement = `
       MATCH (a)
+
+      // Can't rmemeber why two times WITH DISTINCT
       WITH DISTINCT keys(a) AS k
       UNWIND k AS b
       WITH DISTINCT b AS distinct_keys
+      WHERE NOT distinct_keys="password_hashed"
+
       MATCH (n)
-      WHERE toLower(n[distinct_keys]) CONTAINS toLower($query_string)
+      WHERE toLower(toString(n[distinct_keys])) CONTAINS toLower($query_string)
       RETURN DISTINCT n
       LIMIT 200
       `;
 
-    var parameters = {query_string: req.query.query}
+    var parameters = {query_string: req.body.query}
 
     const resultPromise = session.run(statement,parameters);
 
     resultPromise.then(result => {
       session.close();
-      res.render('search_result',{records: result.records, query: req.query.query});
       driver.close();
+      res.send(result.records);
     });
   }
   else {
-    res.render('search_result',{records: []});
+    res.status(400).send("No query");
   }
 });
 
+app.post('/find_related_nodes', function(req, res) {
 
-app.get('/show_relationships', function(req, res) {
+  if('id' in req.body){
+    // Neo4J init
+    const driver = neo4j.driver(neo4j_config.uri, neo4j.auth.basic(neo4j_config.username, neo4j_config.password));
+    const session = driver.session();
+
+    var statement = `
+      MATCH (a)-[r]-(b)
+      WHERE ID(a) = toInt($query)
+      RETURN a, r, b
+      LIMIT 200
+      `;
+
+    var parameters = {query: req.body.id}
+
+    const resultPromise = session.run(statement,parameters);
+
+    resultPromise.then(result => {
+      session.close();
+      driver.close();
+      res.send(result.records);
+    });
+  }
+  else {
+    res.status(400).send("no id")
+  }
 
 
-  // Neo4J init
-  const driver = neo4j.driver(neo4j_config.uri, neo4j.auth.basic(neo4j_config.username, neo4j_config.password));
-  const session = driver.session();
 
-  var statement = `
-    MATCH (a)-[r]-(b)
-    WHERE ID(a) = toInt($query)
-    RETURN a, r, b
-    LIMIT 200
-    `;
-
-  var parameters = {query: req.query.id}
-
-  const resultPromise = session.run(statement,parameters);
-
-  resultPromise.then(result => {
-    session.close();
-    res.render('show_relationships',{records: result.records, query: req.query.id});
-    driver.close();
-  });
 });
+
 
 // Start server
 http_server.listen(app_port, function(){

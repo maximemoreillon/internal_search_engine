@@ -16,6 +16,15 @@ var app = new Vue({
         this.filters.push(this.records[i]._fields[0].labels[0]);
       }
     }
-
   },
+  methods: {
+    highlighted: function(property) {
+      return property.toLowerCase().indexOf(query.toLowerCase()) != -1;
+    },
+    hidden_key: function(key){
+      var hidden_keys = ['password_hashed'];
+      return !(hidden_keys.includes(key));
+    }
+  }
+
 })

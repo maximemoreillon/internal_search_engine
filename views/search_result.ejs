@@ -35,10 +35,10 @@
           <!-- Container for table of properties -->
           <div class="properties_container">
             <table>
-              <tr v-for="property, key in record._fields[0].properties">
+              <tr v-for="property, key in record._fields[0].properties" v-if="hidden_key(key)">
                 <td>{{key}}</td>
                 <td>
-                  <span v-bind:class="{highlighted: property.toLowerCase().indexOf(query.toLowerCase()) != -1}">{{property}}</span>
+                  <span v-bind:class="{highlighted: highlighted(property)}">{{property}}</span>
                 </td>
               </tr>
             </table>
@@ -61,6 +61,7 @@
     <script type="text/javascript">
     var records = JSON.parse('<%- JSON.stringify(records) %>')
     var query = JSON.parse('<%- JSON.stringify(query) %>')
+    console.log(records)
     </script>
 
     <script src="js/search_result.js" charset="utf-8"></script>
