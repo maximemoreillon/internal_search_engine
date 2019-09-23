@@ -12,11 +12,8 @@ var app = express();
 var http_server = http.Server(app);
 
 // Express configuration
-app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors({
   origin: [
     'http://172.16.98.151:8083',
