@@ -4,7 +4,11 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const path = require('path');
 const cors = require('cors')
+const history = require('connect-history-api-fallback');
 
+// Custom modules
+const credentials = require('../common/credentials');
+const misc = require('../common/misc');
 
 var app_port = 8086;
 
@@ -12,24 +16,20 @@ var app = express();
 var http_server = http.Server(app);
 
 // Express configuration
-app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(history());
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use(cors({
-  origin: [
-    'http://172.16.98.151:8083',
-    'http://172.16.98.151',
-    'http://mike.jtekt',
-    'http://mike.jtekt:8083',
-  ],
+  origin: misc.cors_origins,
   credentials: true,
 }));
 
 // Neo4J config
-const neo4j_config = {
-  uri: "bolt://172.16.98.151:7687",
-  username: "neo4j",
-  password: "poketenashi"
-}
+var driver = neo4j.driver(
+  'bolt://localhost',
+  neo4j.auth.basic(credentials.neo4j.username, credentials.neo4j.password)
+)
+
 
 
 app.post('/search', function(req, res) {
@@ -37,7 +37,50 @@ app.post('/search', function(req, res) {
   if('query' in req.body){
 
     // Neo4J init
-    const driver = neo4j.driver(neo4j_config.uri, neo4j.auth.basic(neo4j_config.username, neo4j_config.password));
+    const session = driver.session();
+
+    const resultPromise = session.run(`
+      // Match all nodes
+      MATCH (n)
+
+      // Make a list of the keys of each node
+      // Additionally, filter out fields that should not be searched
+      WITH [key IN KEYS(n) WHERE NOT key IN {exceptions}] AS keys, n
+
+      // Unwinding
+      UNWIND keys as key
+
+
+      // Filter nodes by looking for properties
+      WITH key, n
+      WHERE toLower(toString(n[key])) CONTAINS toLower({query})
+
+      RETURN DISTINCT n
+      LIMIT 200
+      `,{
+        query: req.body.query,
+        exceptions: [
+          'password_hashed'
+        ]
+      });
+
+    resultPromise.then(result => {
+      session.close();
+      res.send(result.records);
+    });
+  }
+  else {
+    res.status(400).send("No query");
+  }
+});
+
+
+
+app.post('/search_legacy', function(req, res) {
+
+  if('query' in req.body){
+
+    // Neo4J init
     const session = driver.session();
 
     var statement = `
@@ -46,6 +89,8 @@ app.post('/search', function(req, res) {
       // Can't rmemeber why two times WITH DISTINCT
       WITH DISTINCT keys(a) AS k
       UNWIND k AS b
+
+
       WITH DISTINCT b AS distinct_keys
       WHERE NOT distinct_keys="password_hashed"
 
@@ -61,7 +106,6 @@ app.post('/search', function(req, res) {
 
     resultPromise.then(result => {
       session.close();
-      driver.close();
       res.send(result.records);
     });
   }
@@ -74,7 +118,6 @@ app.post('/find_related_nodes', function(req, res) {
 
   if('id' in req.body){
     // Neo4J init
-    const driver = neo4j.driver(neo4j_config.uri, neo4j.auth.basic(neo4j_config.username, neo4j_config.password));
     const session = driver.session();
 
     var statement = `
@@ -90,15 +133,12 @@ app.post('/find_related_nodes', function(req, res) {
 
     resultPromise.then(result => {
       session.close();
-      driver.close();
       res.send(result.records);
     });
   }
   else {
     res.status(400).send("no id")
   }
-
-
 
 });
 
