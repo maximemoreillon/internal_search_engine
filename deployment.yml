@@ -18,7 +18,7 @@ spec:
         image: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
         imagePullPolicy: Always
         ports:
-        - containerPort: ${INTERNAL_PORT}
+        - containerPort: 7086
 
 ---
 apiVersion: v1
@@ -29,8 +29,8 @@ metadata:
   name: ${APPLICATION_NAME}-service
 spec:
   ports:
-  - port: ${INTERNAL_PORT}
-    nodePort: ${EXTERNAL_PORT}
+  - port: 7086
+    nodePort: 30086
   selector:
     app: ${APPLICATION_NAME}-deployment
   type: LoadBalancer

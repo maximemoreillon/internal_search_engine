@@ -5,8 +5,6 @@ stages:
 variables:
   APPLICATION_NAME: search-engine
   CONTAINER_REGISTRY: 172.16.98.151:5000
-  INTERNAL_PORT: 7086
-  EXTERNAL_PORT: 30086
 
 containerization:
   stage: containerization
