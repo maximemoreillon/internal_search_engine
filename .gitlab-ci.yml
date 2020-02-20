@@ -1,0 +1,24 @@
+stages:
+  - containerization
+  - deployment
+
+variables:
+  APPLICATION_NAME: search-engine
+  CONTAINER_REGISTRY: 172.16.98.151:5000
+  INTERNAL_PORT: 7086
+  EXTERNAL_PORT: 30086
+
+containerization:
+  stage: containerization
+  script:
+    - cp ${SECRETS} ./credentials.js
+    - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
+    - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+
+deployment:
+  stage: deployment
+  script:
+    - kubectl apply -f deployment.yml
+    - kubectl rollout restart deployment/${APPLICATION_NAME}-deployment
+  environment:
+    name: staging

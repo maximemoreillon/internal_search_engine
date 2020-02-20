@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${APPLICATION_NAME}-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${APPLICATION_NAME}-deployment
+  template:
+    metadata:
+      labels:
+        app: ${APPLICATION_NAME}-deployment
+    spec:
+
+      containers:
+      - name: ${APPLICATION_NAME}-container
+        image: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: ${INTERNAL_PORT}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    run: ${APPLICATION_NAME}-service
+  name: ${APPLICATION_NAME}-service
+spec:
+  ports:
+  - port: ${INTERNAL_PORT}
+    nodePort: ${EXTERNAL_PORT}
+  selector:
+    app: ${APPLICATION_NAME}-deployment
+  type: LoadBalancer

@@ -7,10 +7,9 @@ const cors = require('cors')
 const history = require('connect-history-api-fallback');
 
 // Custom modules
-const credentials = require('../common/credentials');
-const misc = require('../common/misc');
+const secrets = require('./secrets')
 
-var app_port = 8086;
+var app_port = 7086;
 
 var app = express();
 var http_server = http.Server(app);
@@ -19,15 +18,12 @@ var http_server = http.Server(app);
 app.use(bodyParser.json());
 app.use(history());
 app.use(express.static(path.join(__dirname, 'dist')));
-app.use(cors({
-  origin: misc.cors_origins,
-  credentials: true,
-}));
+app.use(cors());
 
 // Neo4J config
 var driver = neo4j.driver(
   'bolt://localhost',
-  neo4j.auth.basic(credentials.neo4j.username, credentials.neo4j.password)
+  neo4j.auth.basic(secrets.neo4j.username, secrets.neo4j.password)
 )
 
 
