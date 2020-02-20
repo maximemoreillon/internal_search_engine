@@ -22,7 +22,7 @@ app.use(cors());
 
 // Neo4J config
 var driver = neo4j.driver(
-  'bolt://localhost',
+  'bolt://172.16.98.151',
   neo4j.auth.basic(secrets.neo4j.username, secrets.neo4j.password)
 )
 
