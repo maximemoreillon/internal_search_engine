@@ -9,7 +9,7 @@ variables:
 containerization:
   stage: containerization
   script:
-    - cp ${SECRETS} ./credentials.js
+    - cp ${SECRETS} ./secrets.js
     - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
     - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
 
