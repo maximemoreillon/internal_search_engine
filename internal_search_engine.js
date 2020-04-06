@@ -2,9 +2,7 @@ const neo4j = require('neo4j-driver').v1;
 const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
-const path = require('path');
 const cors = require('cors')
-const history = require('connect-history-api-fallback');
 
 // Custom modules
 const secrets = require('./secrets')
@@ -16,8 +14,6 @@ var http_server = http.Server(app);
 
 // Express configuration
 app.use(bodyParser.json());
-app.use(history());
-app.use(express.static(path.join(__dirname, 'dist')));
 app.use(cors());
 
 // Neo4J config
@@ -30,44 +26,38 @@ var driver = neo4j.driver(
 
 app.post('/search', function(req, res) {
 
-  if('query' in req.body){
+  if(!('query' in req.body)) return res.status(400).send("No query");
 
-    // Neo4J init
-    const session = driver.session();
+  // Neo4J init
+  const session = driver.session();
+  session.run(`
+    // Match all nodes
+    MATCH (n)
 
-    const resultPromise = session.run(`
-      // Match all nodes
-      MATCH (n)
+    // Make a list of the keys of each node
+    // Additionally, filter out fields that should not be searched
+    WITH [key IN KEYS(n) WHERE NOT key IN {exceptions}] AS keys, n
 
-      // Make a list of the keys of each node
-      // Additionally, filter out fields that should not be searched
-      WITH [key IN KEYS(n) WHERE NOT key IN {exceptions}] AS keys, n
-
-      // Unwinding
-      UNWIND keys as key
+    // Unwinding
+    UNWIND keys as key
 
 
-      // Filter nodes by looking for properties
-      WITH key, n
-      WHERE toLower(toString(n[key])) CONTAINS toLower({query})
+    // Filter nodes by looking for properties
+    WITH key, n
+    WHERE toLower(toString(n[key])) CONTAINS toLower({query})
 
-      RETURN DISTINCT n
-      LIMIT 200
-      `,{
-        query: req.body.query,
-        exceptions: [
-          'password_hashed'
-        ]
-      });
+    RETURN DISTINCT n
+    LIMIT 200
+    `,{
+      query: req.body.query,
+      exceptions: [
+        'password_hashed'
+      ]
+    })
+  .then(result => { res.send(result.records) })
+  .catch(error => { res.status(400).send(`Error accessing DB: ${error}`) })
+  .finally( () => { session.close() })
 
-    resultPromise.then(result => {
-      session.close();
-      res.send(result.records);
-    });
-  }
-  else {
-    res.status(400).send("No query");
-  }
 });
 
 
