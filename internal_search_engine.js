@@ -51,7 +51,9 @@ app.post('/search', function(req, res) {
     `,{
       query: req.body.query,
       exceptions: [
-        'password_hashed'
+        'password_hashed',
+        'content',
+        'avatar_src',
       ]
     })
   .then(result => { res.send(result.records) })
