@@ -1,21 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: search-engine-deployment
+  name: ${APPLICATION_NAME}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: search-engine-deployment
+      app: ${APPLICATION_NAME}
   template:
     metadata:
       labels:
-        app: search-engine-deployment
+        app: ${APPLICATION_NAME}
     spec:
-
       containers:
-      - name: search-engine-container
-        image: 172.16.98.151:5000/search-engine
+      - name: ${APPLICATION_NAME}
+        image: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
         imagePullPolicy: Always
         ports:
         - containerPort: 7086
@@ -24,13 +23,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  labels:
-    run: search-engine-service
-  name: search-engine-service
+  name: ${APPLICATION_NAME}
 spec:
   ports:
   - port: 7086
     nodePort: 30086
   selector:
-    app: search-engine-deployment
-  type: LoadBalancer
+    app: ${APPLICATION_NAME}
+  type: NodePort
