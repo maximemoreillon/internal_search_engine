@@ -34,6 +34,14 @@ app.post('/search', function(req, res) {
     // Match all nodes
     MATCH (n)
 
+    // Filter node labels
+    WHERE n:Computer
+      OR n:Employee
+      OR n:Group
+      OR n:Skill
+      OR n:Computer
+      OR n:Workplace
+
     // Make a list of the keys of each node
     // Additionally, filter out fields that should not be searched
     WITH [key IN KEYS(n) WHERE NOT key IN {exceptions}] AS keys, n
@@ -110,7 +118,16 @@ app.post('/find_related_nodes', function(req, res) {
 
     var statement = `
       MATCH (a)-[r]-(b)
+      
+      // Filters
       WHERE ID(a) = toInt($query)
+        AND (b:Computer
+          OR b:Employee
+          OR b:Group
+          OR b:Skill
+          OR b:Computer
+          OR b:Workplace)
+
       RETURN a, r, b
       LIMIT 200
       `;
