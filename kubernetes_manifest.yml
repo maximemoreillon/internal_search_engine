@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${APPLICATION_NAME}
+  name: ${DEPLOYMENT_NAME}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${APPLICATION_NAME}
+      app: ${DEPLOYMENT_NAME}
   template:
     metadata:
       labels:
-        app: ${APPLICATION_NAME}
+        app: ${DEPLOYMENT_NAME}
     spec:
       containers:
-      - name: ${APPLICATION_NAME}
+      - name: ${DEPLOYMENT_NAME}
         image: ${CONTAINER_IMAGE}
         imagePullPolicy: Always
         ports:
@@ -32,11 +32,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ${APPLICATION_NAME}
+  name: ${DEPLOYMENT_NAME}
 spec:
   ports:
   - port: 80
     nodePort: 30086
   selector:
-    app: ${APPLICATION_NAME}
+    app: ${DEPLOYMENT_NAME}
   type: NodePort

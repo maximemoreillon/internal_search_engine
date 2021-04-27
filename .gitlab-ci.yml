@@ -4,6 +4,7 @@ stages:
 
 variables:
   APPLICATION_NAME: neo4j-search-engine
+  DEPLOYMENT_NAME: search-engine
   CONTAINER_IMAGE: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
 
 containerization:
