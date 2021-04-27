@@ -1,5 +1,5 @@
 # Base image on node
-FROM node:12
+FROM node:14
 
 # Create app directory and move into it
 WORKDIR /usr/src/app
@@ -11,7 +11,7 @@ COPY . .
 RUN npm install
 
 # Expose port
-EXPOSE 7086
+EXPOSE 80
 
 # Run the app
-CMD [ "node", "internal_search_engine.js" ]
+CMD [ "node", "index.js" ]

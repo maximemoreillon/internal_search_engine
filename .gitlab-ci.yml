@@ -3,20 +3,20 @@ stages:
   - deployment
 
 variables:
-  APPLICATION_NAME: search-engine
+  APPLICATION_NAME: neo4j-search-engine
+  CONTAINER_IMAGE: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
 
 containerization:
   stage: containerization
   script:
-    - cp ${SECRETS} ./secrets.js
-    - docker build -t ${CONTAINER_REGISTRY}/${APPLICATION_NAME} .
-    - docker push ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+    - docker build -t ${CONTAINER_IMAGE} .
+    - docker push ${CONTAINER_IMAGE}
 
 deployment:
   stage: deployment
   script:
     # create/update the deployment
-    - envsubst < deployment.yml | kubectl apply -f -
+    - envsubst < kubernetes_manifest.yml | kubectl apply -f -
     # Pull latest image of deployment
     - kubectl rollout restart deployment/${APPLICATION_NAME}
   environment:

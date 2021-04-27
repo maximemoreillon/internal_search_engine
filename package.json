@@ -1,18 +1,17 @@
 {
-  "name": "jtekt_db_search_engine",
-  "version": "1.0.0",
+  "name": "neo4j_search_engine",
+  "version": "2.0.0",
   "description": "",
-  "main": "jtekt_db_search_engine.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "connect-history-api-fallback": "^1.6.0",
     "cors": "^2.8.5",
-    "ejs": "^2.6.2",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "neo4j-driver": "^1.7.5"
+    "neo4j-driver": "^4.2.3"
   }
 }

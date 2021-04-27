@@ -14,10 +14,19 @@ spec:
     spec:
       containers:
       - name: ${APPLICATION_NAME}
-        image: ${CONTAINER_REGISTRY}/${APPLICATION_NAME}
+        image: ${CONTAINER_IMAGE}
         imagePullPolicy: Always
         ports:
-        - containerPort: 7086
+        - containerPort: 80
+        # Get environment variables from secret
+        env:
+        - name: NODES
+          value: Employee,Workplace,Computer,Group
+        - name: PROPERTIES
+          value: name,email_address,display_name,name_kanji,name_katakana,username
+        envFrom:
+        - secretRef:
+           name: environment-variables
 
 ---
 apiVersion: v1
@@ -26,7 +35,7 @@ metadata:
   name: ${APPLICATION_NAME}
 spec:
   ports:
-  - port: 7086
+  - port: 80
     nodePort: 30086
   selector:
     app: ${APPLICATION_NAME}
